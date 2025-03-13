@@ -1,0 +1,519 @@
+package str
+
+import (
+	"crypto/md5"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"math/rand"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/rs/xid"
+	// . "yunapi/log"
+)
+
+func UniqAppend(dataList []string, data string) []string {
+	for _, data1 := range dataList {
+		if data1 == data {
+			return dataList
+		}
+	}
+	dataList = append(dataList, data)
+	return dataList
+}
+
+func GetRandomStringWithStr(inStr string, l int) string {
+	oldStr := Md5String(inStr)
+	str := "0123456789abcdefghijklmnopqrstuvwxyz" + oldStr
+	bytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, bytes[r.Intn(len(bytes))])
+	}
+	return string(result)
+}
+
+func GetRandomString(l int) string {
+	str := "0123456789abcdefghijklmnopqrstuvwxyz"
+	bytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+	for i := 0; i < l; i++ {
+		result = append(result, bytes[r.Intn(len(bytes))])
+	}
+	return string(result)
+}
+
+var r = rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
+
+func GetRandomNum(l int) string {
+	str := "0123456789"
+	bytes := []byte(str)
+	result := []byte{}
+	for i := 0; i < l; i++ {
+		br := r.Intn(10)
+		result = append(result, bytes[br])
+	}
+	return string(result)
+}
+
+func CreateMd5String(addStr, salt string) string {
+
+	m5 := md5.New()
+
+	m5.Write([]byte(addStr))
+	m5.Write([]byte(salt))
+
+	st := m5.Sum(nil)
+	token := hex.EncodeToString(st)
+
+	return string(token)
+}
+
+func Md5String(addStr string) string {
+	m5 := md5.New()
+	m5.Write([]byte(addStr))
+	st := m5.Sum(nil)
+	token := hex.EncodeToString(st)
+	return string(token)
+}
+
+func ProdPwd(oldPwd, salt string) string {
+	oldKey := Md5String(salt)
+	key := []byte(strings.ToTitle(oldKey[0:8]))
+	result, err := DesEncrypt([]byte(oldPwd), key)
+	if err != nil {
+		panic(err)
+	}
+	hexstr := fmt.Sprintf("%X", result)
+	fmt.Println(hexstr)
+	return hexstr
+}
+
+func PwdDes(pwd, salt string) string {
+	oldKey := Md5String(salt)
+	key := []byte(strings.ToTitle(oldKey[0:8]))
+
+	desStr := HexToString(pwd)
+	result, err := DesDecrypt([]byte(desStr), key)
+	if err != nil {
+		panic(err)
+	}
+	oldPwd := fmt.Sprintf("%s", result)
+	fmt.Println(oldPwd)
+	return oldPwd
+}
+
+func HexToString(hexStr string) string {
+	bytes, err := hex.DecodeString(hexStr)
+	if err != nil {
+		fmt.Println("Error decoding hex string:", err)
+		return ""
+	}
+	return string(bytes)
+}
+
+// Convert json string to map
+func JsonToMap(jsonStr string) (map[string]string, error) {
+	m := make(map[string]string)
+	err := json.Unmarshal([]byte(jsonStr), &m)
+	if err != nil {
+
+		return nil, err
+	}
+
+	return m, nil
+}
+
+// Convert map json string
+func MapToJson(m map[string]string) (string, error) {
+	jsonByte, err := json.Marshal(m)
+	if err != nil {
+
+		return "", nil
+	}
+
+	return string(jsonByte), nil
+}
+
+func MakeTimestamp() int64 {
+
+	return time.Now().UTC().UnixNano() / int64(time.Millisecond)
+}
+
+// 生成订单号：YYYYMMDDHHmmssSSS + gameId + pp +
+func CreateOrderNo(orderPre string) string {
+	date := GetTodyDay()
+	data := GetTimeTick64()
+	code := fmt.Sprintf("%s%s%s%s", orderPre, date, data, GetRandomNum(3))
+	return code
+}
+
+func GetTodyDay() string {
+	timeTemplate := "060102"
+	return time.Now().UTC().Format(timeTemplate)
+}
+
+func GetTimeTick64() string {
+	intData := time.Now().UnixNano() / 1e6
+	s := strconv.FormatInt(intData, 10)
+	content := s[4 : len(s)-1]
+	return content
+}
+
+func GetIdStr() string {
+	return xid.New().String()
+}
+
+func FormatTimeToStr(t time.Time) string {
+	timeTemplate1 := "2006-01-02 15:04:05"
+	return t.Format(timeTemplate1)
+}
+
+func FormatTimeToStrForScript(t time.Time) string {
+	timeTemplate1 := "2006-01-02T15:04:05"
+	return t.Format(timeTemplate1)
+}
+
+// func FormatTimeToStrWithZone(t time.Time, zone int) string {
+// 	timeTemplate1 := "2006-01-02 15:04:05"
+// 	loc := time.FixedZone("UTC-8", zone * 60 * 60)
+// 	t = t.In(loc)
+// 	return  t.Format(timeTemplate1)
+// }
+
+func GetTimeUnix(t time.Time) int64 {
+	return t.UTC().Unix()
+}
+
+func GetTodayStr() string {
+	timeTemplate := "20060102"
+	return time.Now().UTC().Format(timeTemplate)
+}
+
+func GetTimeStr(inTime time.Time) string {
+	timeTemplate := "2006-01-02"
+	return inTime.Format(timeTemplate)
+}
+
+func GetTimeHourStr(inTime time.Time) string {
+	timeTemplate := "2006-01-02 15"
+	return inTime.Format(timeTemplate)
+}
+
+func GetTimeMonthStr(inTime time.Time) string {
+	timeTemplate := "2006-01"
+	return inTime.Format(timeTemplate)
+}
+
+func GetNowStr() string {
+	timeTemplate := "20060102150405"
+	return time.Now().UTC().Format(timeTemplate)
+}
+
+type ProxyTag struct {
+	Proxy string `json:"proxy"`
+}
+
+func (s *ProxyTag) AppendTag(tag string) {
+	if s.Proxy == "" {
+		s.Proxy = tag
+	} else {
+		s.Proxy = s.Proxy + " && " + tag
+	}
+}
+
+func (s *ProxyTag) GetBase64Str() string {
+	return GetBase64Data(s.Proxy)
+}
+
+func GetProxyTag(ipId, region, ipUrl string) ProxyTag {
+	proxy := ProxyTag{}
+	if ipId != "" {
+		tag := "uid==\"" + ipId + "\""
+		proxy.AppendTag(tag)
+	} else {
+		if ipUrl != "" {
+			tag := "url==\"" + ipUrl + "\""
+			// tag := "ext.at(\"url\")==\"" + region + "\""
+			proxy.AppendTag(tag)
+		}
+		if region != "" {
+			tag := "ext.has(\"region\") && ext.at(\"region\")==\"" + region + "\""
+			proxy.AppendTag(tag)
+		}
+	}
+	return proxy
+}
+
+func GetProxyGroup(userId uint32) string {
+	userIdStr := strconv.Itoa(int(userId))
+	str := "ext.at(\"group\") == \"" + userIdStr + "\""
+	return GetBase64Data(str)
+}
+
+func GetProxyGroupNot64(userId uint32) string {
+	userIdStr := strconv.Itoa(int(userId))
+	str := "ext.at(\"group\") == \"" + userIdStr + "\""
+	return str
+}
+
+func GetBase64Data(data string) string {
+	input := []byte(data)
+	encodeString := base64.StdEncoding.EncodeToString(input)
+	return string(encodeString)
+}
+
+func GetTodayZeroTime() time.Time {
+	timeTemplate1 := "2006-01-02 15:04:05"
+	timeStr := time.Now().UTC().Format("2006-01-02")
+	t2 := timeStr + " 00:00:00"
+	stamp, _ := time.ParseInLocation(timeTemplate1, t2, time.Local) //使用parseInLocation将字符串格式化返回本地时区时间
+	return stamp
+}
+
+func IntsToUints(dataList []int) (resList []uint) {
+	for _, data := range dataList {
+		res := uint(data)
+		resList = append(resList, res)
+	}
+
+	return resList
+}
+
+func GetPointTime(inTime time.Time, pointStr string) time.Time {
+	timeTemplate1 := "2006-01-02 15:04:05"
+	timeStr := inTime.Format("2006-01-02")
+	t2 := timeStr + " " + pointStr
+	stamp, _ := time.ParseInLocation(timeTemplate1, t2, time.Local) //使用parseInLocation将字符串格式化返回本地时区时间
+	return stamp
+}
+
+func GetTodayZeroStr() string {
+	timeStr := time.Now().UTC().Format("2006-01-02")
+	t2 := timeStr + " 00:00:00"
+	return t2
+}
+
+func FormatStringToInt32(data string) (int32, error) {
+	j, err := strconv.ParseInt(data, 10, 32)
+	if err != nil {
+		return 0, err
+	}
+	return int32(j), nil
+}
+
+// 获取一天前的字符串
+func GetTimeBefore(inTime time.Time) time.Time {
+	next := inTime.Add(-time.Hour * 24)
+	return next
+}
+
+func GetZeroTime(inTime time.Time) int64 {
+	return time.Date(inTime.Year(), inTime.Month(), inTime.Day(), 0, 0, 0, 0, inTime.Location()).Unix()
+}
+
+func GetTimeBeforeMonth(inTime time.Time) time.Time {
+	next := inTime.AddDate(0, -1, 0)
+	return next
+}
+
+// strconv.Itoa(int(i))
+func FormatInt32ToStr(data int32) string {
+	return strconv.Itoa(int(data))
+}
+
+// 是否是不重复的数组
+func CheckSameFriend(dataList []string) bool {
+	fmap := make(map[string]string)
+	for _, fid := range dataList {
+		dbD := fmap[fid]
+		if dbD == "" {
+			fmap[fid] = fid
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
+func CheckInStrings(data string, datas []string) bool {
+	for _, v := range datas {
+		if v == data {
+			return true
+		}
+	}
+
+	return false
+}
+
+func StringsToUint32s(accidList []string) []uint32 {
+	var intList []uint32
+	for _, accStr := range accidList {
+		data, _ := strconv.Atoi(accStr)
+		intList = append(intList, uint32(data))
+	}
+	return intList
+}
+
+func StringsToUint64s(strList []string) []uint64 {
+	var intList []uint64
+	for _, str := range strList {
+		su64, err := strconv.ParseUint(str, 10, 64)
+		if err == nil {
+			intList = append(intList, su64)
+		}
+
+	}
+	return intList
+}
+
+func StringToUint64(str string) (uint64, error) {
+	su64, err := strconv.ParseUint(str, 10, 64)
+	return su64, err
+}
+
+func StringsToUints(accidList []string) []uint {
+	var intList []uint
+	for _, accStr := range accidList {
+		data, err := strconv.Atoi(accStr)
+		if err == nil {
+			intList = append(intList, uint(data))
+		}
+	}
+	return intList
+}
+
+func StrToTime(str string) time.Time {
+
+	var timeLayoutStr = "2006-01-02 15:04:05"
+	st, err := time.Parse(timeLayoutStr, str) //string转StrToTime
+	if err != nil {
+		var timeLayoutStr = "2006-1-2 15:04:05"
+		st, err := time.Parse(timeLayoutStr, str) //string转StrToTime
+		if err != nil {
+			return time.Now()
+		}
+		return st
+	}
+
+	return st
+}
+
+func Int64ToTime(timeInt int64) time.Time {
+
+	return time.Unix(timeInt, 0)
+}
+
+func RecerseList(x []interface{}) []interface{} {
+	for i, j := 0, len(x)-1; i < j; i, j = i+1, j-1 {
+		x[i], x[j] = x[j], x[i]
+	}
+	return x
+}
+
+func TimeIntToTimeStr(timeInt int64) string {
+	loc := time.FixedZone("UTC-8", 8*60*60)
+	d := time.Unix(timeInt, 0).In(loc)
+	timeTemplate := "2006-01-02 15:04:05"
+	return d.Format(timeTemplate)
+
+}
+
+func VerifyEmailFormat(email string) bool {
+	//pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*` //匹配电子邮箱
+	// pattern := `^[0-9a-z][_.0-9a-z-]{0,31}@([0-9a-z][0-9a-z-]{0,30}[0-9a-z]\.){1,4}[a-z]{2,4}$`
+	// 定义邮箱正则表达式
+	emailRegexp := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+
+	// // 判断是否符合邮箱格式
+	// if regexp.MatchString(email) {
+	// 	fmt.Println("是邮箱")
+	// } else {
+	// 	fmt.Println("不是邮箱")
+	// }
+	// // reg := regexp.MustCompile(pattern)
+
+	return emailRegexp.MatchString(email)
+}
+
+// 获取一个月最后一天的年月日
+func GetLastTimeOfMonth(timeStr string) string {
+	inTime := StrToTime(timeStr)
+	lastTime := inTime.AddDate(0, 1, -1)
+	lastTimeStr := GetTimeStr(lastTime)
+	return lastTimeStr
+}
+
+type KeyValData struct {
+	Key string `json:"key"`
+	Val string `json:"val"`
+}
+
+func DealKeyValData(queryStr string) (dataList []KeyValData) {
+	strList := strings.Split(queryStr, ",")
+	for _, str := range strList {
+		kvs := strings.Split(str, ":")
+		if len(kvs) == 2 {
+			k := kvs[0]
+			v := kvs[1]
+			data := KeyValData{}
+			data.Key = k
+			data.Val = v
+			dataList = append(dataList, data)
+		}
+	}
+
+	return dataList
+}
+
+func JsonStringToMap(body string) (map[string]interface{}, error) {
+	if body == "" {
+		return nil, errors.New("data is null")
+	}
+	var result map[string]interface{}
+	s := fmt.Sprintf(body)
+	bb := []byte(s)
+	err := json.Unmarshal(bb, &result)
+	return result, err
+}
+
+func StrInStrs(target string, str_array []string) bool {
+
+	for _, element := range str_array {
+
+		if target == element {
+
+			return true
+
+		}
+
+	}
+
+	return false
+
+}
+
+// 获取上个月的开始和结束的时间戳
+func GetLastMonthStartAndEndSec() (startTime, endTime int64) {
+	now := time.Now()
+	lastMonth := now.AddDate(0, -1, 0)
+	startTime = time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, now.Location()).Unix()
+	endTime = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location()).Unix() - 1
+
+	return startTime, endTime
+}
+
+func GetLastMonthStr() string {
+	now := time.Now()
+	lastMonth := now.AddDate(0, -1, 0)
+	timeStr := GetTimeMonthStr(lastMonth)
+	return timeStr
+
+}
