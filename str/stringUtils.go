@@ -517,3 +517,12 @@ func GetLastMonthStr() string {
 	return timeStr
 
 }
+
+// getRandomNumber 生成 m 到 n 之间的随机数
+func GetRandomNumber(m, n int) int {
+	if m > n {
+		m, n = n, m
+	}
+
+	return m + r.Intn(n-m+1)
+}
