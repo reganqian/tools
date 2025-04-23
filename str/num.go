@@ -2,8 +2,6 @@ package str
 
 import (
 	"math/big"
-	"math/rand"
-	"time"
 
 	"github.com/shopspring/decimal"
 
@@ -80,16 +78,17 @@ func RoundFloor(f float64) float64 {
 	return priceRoundFloor
 }
 
+// 获取m内 n个不同的随机数
 func GetRandomNumbers(m, n int) ([]int, error) {
 	if n > m {
 		return nil, fmt.Errorf("n 不能大于 m")
 	}
-	rand.Seed(time.Now().UnixNano())
+	// rand.Seed(time.Now().UnixNano())
 	numbers := make([]int, m)
 	for i := range numbers {
 		numbers[i] = i
 	}
-	rand.Shuffle(len(numbers), func(i, j int) {
+	r.Shuffle(len(numbers), func(i, j int) {
 		numbers[i], numbers[j] = numbers[j], numbers[i]
 	})
 	return numbers[:n], nil

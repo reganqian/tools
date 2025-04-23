@@ -301,6 +301,14 @@ func GetTodayZeroStr() string {
 	return t2
 }
 
+func FormatStringToInt(data string) (int, error) {
+	j, err := strconv.ParseInt(data, 10, 32)
+	if err != nil {
+		return 0, err
+	}
+	return int(j), nil
+}
+
 func FormatStringToInt32(data string) (int32, error) {
 	j, err := strconv.ParseInt(data, 10, 32)
 	if err != nil {
@@ -317,6 +325,10 @@ func GetTimeBefore(inTime time.Time) time.Time {
 
 func GetZeroTime(inTime time.Time) int64 {
 	return time.Date(inTime.Year(), inTime.Month(), inTime.Day(), 0, 0, 0, 0, inTime.Location()).Unix()
+}
+
+func GetLastTime(inTime time.Time) int64 {
+	return time.Date(inTime.Year(), inTime.Month(), inTime.Day(), 23, 59, 59, 0, inTime.Location()).Unix()
 }
 
 func GetTimeBeforeMonth(inTime time.Time) time.Time {
@@ -404,6 +416,43 @@ func StrToTime(str string) time.Time {
 	}
 
 	return st
+}
+
+// CalculateAge 根据生日计算年龄
+func CalculateAge(birthday string) (int, error) {
+	// 解析生日字符串
+	birthDate, err := time.Parse("2006-01-02 15:04:05", birthday)
+	if err != nil {
+		return 0, err
+	}
+	// 获取当前时间
+	now := time.Now()
+	// 计算年份差
+	age := now.Year() - birthDate.Year()
+	// 判断生日是否已经过了
+	if now.YearDay() < birthDate.YearDay() {
+		age--
+	}
+	return age, nil
+}
+
+func StrTimeAddYear(str string, addType string, addVal int) (targetTime time.Time) {
+	d := StrToTime(str)
+	if addType == "add" {
+		targetTime = d.AddDate(addVal, 0, 0)
+	} else {
+		targetTime = d.AddDate(0-addVal, 0, 0)
+	}
+	return targetTime
+}
+
+func TimeAddYear(d time.Time, addType string, addVal int) (targetTime time.Time) {
+	if addType == "add" {
+		targetTime = d.AddDate(addVal, 0, 0)
+	} else {
+		targetTime = d.AddDate(0-addVal, 0, 0)
+	}
+	return targetTime
 }
 
 func Int64ToTime(timeInt int64) time.Time {
@@ -525,4 +574,19 @@ func GetRandomNumber(m, n int) int {
 	}
 
 	return m + r.Intn(n-m+1)
+}
+
+func CreateKey() string {
+	keyLength := 32
+	key := make([]byte, keyLength)
+	// 生成随机字节
+	_, err := rand.Read(key)
+	if err != nil {
+		fmt.Println("Error generating random bytes:", err)
+		return ""
+	}
+	// 将字节转换为十六进制字符串
+	keyHex := hex.EncodeToString(key)
+	fmt.Println("Generated JWT Key:", keyHex)
+	return keyHex
 }

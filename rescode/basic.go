@@ -6,6 +6,12 @@ type BasicReply struct {
 	Msg  string `json:"msg"`
 }
 
+// // @Description  通用返回对象
+// type GeneralReply struct {
+// 	BasicReply
+// 	Data interface{} `json:"data"`
+// }
+
 func (s *BasicReply) Failed(code int32, msg string) {
 	s.Code = code
 	s.Msg = msg
@@ -13,6 +19,11 @@ func (s *BasicReply) Failed(code int32, msg string) {
 
 func (s *BasicReply) Success() {
 	s.Code = SUCCESS
+	s.Msg = DEFAULT_SUCCESS_DESC
+}
+
+func (s *BasicReply) SetSuccess() {
+	s.Code = DEFAULT_SUCCESS
 	s.Msg = DEFAULT_SUCCESS_DESC
 }
 

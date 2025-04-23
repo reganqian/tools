@@ -79,6 +79,42 @@ func HttpPostForm(apiUrl string, params url.Values) (map[string]interface{}, err
 
 }
 
+func PostJsonWithHeader(httpposturl string, jsonStr interface{}, header map[string]string) (string, error) {
+
+	fmt.Println("HTTP JSON POST URL:", httpposturl)
+
+	jsonData, err := json.Marshal(jsonStr)
+	if err != nil {
+		return "", err
+	}
+	log.Info("json params========", string(jsonData))
+	request, err := http.NewRequest("POST", httpposturl, bytes.NewBuffer(jsonData))
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	for k, v := range header {
+		request.Header.Set(k, v)
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		fmt.Println("client.Do error ===", err.Error())
+		return "", err
+	}
+	defer response.Body.Close()
+
+	fmt.Println("response Status:", response.Status)
+	fmt.Println("response Headers:", response.Header)
+	body, _ := ioutil.ReadAll(response.Body)
+	fmt.Println("response Body==", string(body))
+
+	stringBody := string(body)
+	log.Info("response body=", stringBody)
+	// Log.Info(stringBody)
+
+	return stringBody, err
+}
+
 func PostJson(httpposturl string, jsonStr interface{}) (map[string]interface{}, error) {
 
 	fmt.Println("HTTP JSON POST URL:", httpposturl)
