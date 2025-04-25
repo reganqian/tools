@@ -26,6 +26,7 @@ func GetAgeFromBirth(birthDay string) (age int) {
 	if birthDay == "" {
 		return age
 	}
+
 	by, bm, bd, err := GetYMDFromTimeStr(birthDay)
 	if err != nil {
 		return age
@@ -51,8 +52,12 @@ func GetYMDFromTimeStr(timeStr string) (y, m, d int, err error) {
 	// 解析时间字符串
 	t, err := time.Parse(layout, timeStr)
 	if err != nil {
-		fmt.Println("时间解析出错:", err)
-		return y, m, d, err
+		layout = "2006-01-02"
+		t, err = time.Parse(layout, timeStr)
+		if err != nil {
+			fmt.Println("时间解析出错:", err)
+			return y, m, d, err
+		}
 	}
 	y, m, d = GetYMDFromTime(t)
 	return y, m, d, nil
