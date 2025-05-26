@@ -12,6 +12,12 @@ type BasicReply struct {
 // 	Data interface{} `json:"data"`
 // }
 
+type PageInfo struct {
+	PageNo   int32 `json:"pageNo"`
+	PageSize int32 `json:"pageSize"`
+	Total    int32 `json:"total"`
+}
+
 func (s *BasicReply) Failed(code int32, msg string) {
 	s.Code = code
 	s.Msg = msg

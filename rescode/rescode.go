@@ -85,6 +85,10 @@ const (
 	// @Swagger:constant -301
 	NEED_REDIRECT int32 = -301
 
+	// @Description 需要完成信息填写
+	// @Swagger:constant -111
+	NEED_USER_INFO int32 = -111
+
 	NEED_LOGIN_1K   = 1001 //需要登录
 	PARAMNULL_1K    = 1002 //参数为空
 	FORMATERROR_1K  = 1003 //格式错误
