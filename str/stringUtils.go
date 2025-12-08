@@ -202,6 +202,20 @@ func GetTimeStr(inTime time.Time) string {
 	return inTime.Format(timeTemplate)
 }
 
+func GetTimeMonthAndDay(inTime time.Time) (timeMonth string, timeDay int) {
+	timeTemplate := "2006-01"
+	timeMonth = inTime.Format(timeTemplate)
+	timeDay = inTime.Day()
+	return timeMonth, timeDay
+}
+
+// 查询昨天
+func GetYesterdayStr(inTime time.Time) string {
+	timeTemplate := "2006-01-02"
+	yesterday := inTime.AddDate(0, 0, -1)
+	return yesterday.Format(timeTemplate)
+}
+
 func GetTimeHourStr(inTime time.Time) string {
 	timeTemplate := "2006-01-02 15"
 	return inTime.Format(timeTemplate)
