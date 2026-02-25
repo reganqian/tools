@@ -11,6 +11,7 @@ require (
 	github.com/emersion/go-sasl v0.0.0-20231106173351-e73c9f7bad43
 	github.com/emersion/go-smtp v0.21.3
 	github.com/garyburd/redigo v1.6.4
+	github.com/google/uuid v1.6.0
 	github.com/labstack/gommon v0.4.2
 	github.com/rs/xid v1.6.0
 	github.com/shopspring/decimal v1.4.0
