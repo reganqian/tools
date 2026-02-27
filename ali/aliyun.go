@@ -1,80 +1,148 @@
+// This file is auto-generated, don't edit it. Thanks.
 package ali
 
-//curl -i -k -X POST 'https://kzidcardv1.market.alicloudapi.com/api-mall/api/id_card/check'  -H 'Authorization:APPCODE 你自己的AppCode' --data 'name=name&idcard=idcard'
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
+	sdk "github.com/alibabacloud-go/cloudauth-20190307/v4/client"
+	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	console "github.com/alibabacloud-go/tea-console/client"
+	util "github.com/alibabacloud-go/tea-utils/v2/service"
+	"github.com/alibabacloud-go/tea/tea"
+	credential "github.com/aliyun/credentials-go/credentials"
 )
+
+type ClientInterface interface {
+}
+
+type AliyunIdCardCheckReq struct {
+	UserName    string `json:"userName"`    //真实姓名
+	IdentifyNum string `json:"identifyNum"` //证件号码
+}
+
+type AliyunIdCardCheckResponse struct {
+	CheckResult int `json:"checkResult"` //检验结果, 1:是,  2否
+}
 
 const (
-	REAL_NAME_CHECK_URL = "https://kzidcardv1.market.alicloudapi.com/api-mall/api/id_card/check"
-
-	ALI_IDCARD_RESULT_YES = 0 //一致
-	ALI_IDCARD_RESULT_NO  = 1 //不一致
+	ALIYUN_CHECK_RESULT_YES = 1
+	ALIYUN_CHECK_RESULT_NO  = 2
 )
 
-// IDCardCheckRequest 实名认证请求参数
-type IDCardCheckRequest struct {
-	Name   string `json:"name"`   // 姓名
-	IDCard string `json:"idcard"` // 身份证号
+func AliyunIdCardCheck(req AliyunIdCardCheckReq) (res *AliyunIdCardCheckResponse, err error) {
+	tryErr := func() (_e error) {
+		defer func() {
+			if r := tea.Recover(recover()); r != nil {
+				_e = r
+			}
+		}()
+		// 构建request。
+		request := &sdk.Id2MetaVerifyRequest{}
+		request.ParamType = tea.String("normal")
+		request.UserName = &req.UserName
+		request.IdentifyNum = &req.IdentifyNum
+		// 自动路由服务。
+		response := Id2MetaVerifyAutoRoute(request)
+		if tea.BoolValue(util.EqualNumber(tea.ToInt(response.StatusCode), tea.Int(200))) {
+			res := &AliyunIdCardCheckResponse{}
+			if tea.BoolValue(util.EqualString(response.Body.ResultObject.BizCode, tea.String("1"))) {
+				//一致
+				res.CheckResult = ALIYUN_CHECK_RESULT_YES
+			} else {
+				// 不一致
+				res.CheckResult = ALIYUN_CHECK_RESULT_NO
+			}
+		}
+
+		ret := util.ToJSONString(util.ToMap(response))
+		console.Log(tea.String("最终结果（若此处为空，则所有服务点均异常，请逐步调试）：" + tea.StringValue(ret)))
+
+		return nil
+	}()
+
+	if tryErr != nil {
+		return res, tryErr
+	}
+	return res, err
 }
 
-// IDCardCheckResponse 实名认证返回结果
-type IDCardCheckResponse struct {
-	Code int    `json:"code"` // 返回码
-	Msg  string `json:"msg"`  // 返回信息
-	Data *struct {
-		Result   int    `json:"result"`   // 认证结果：0 不一致，1 一致
-		Birthday string `json:"birthday"` // 生日
-		OrderNo  string `json:"orderNo"`  // 订单编号
-		Address  string `json:"address"`  // 地址
-		Sex      string `json:"sex"`      // 性别
-		Desc     string `json:"desc"`     // 描述
-	} `json:"data"`
+// 主备服务点循环调用，获取到成功结果返回。
+func Id2MetaVerifyAutoRoute(request *sdk.Id2MetaVerifyRequest) (_result *sdk.Id2MetaVerifyResponse) {
+	endpoints := []*string{tea.String("cloudauth.cn-shanghai.aliyuncs.com"), tea.String("cloudauth.cn-beijing.aliyuncs.com")}
+	var lastResponse *sdk.Id2MetaVerifyResponse
+	for _, endpoint := range endpoints {
+		_, tryErr := func() (_r *sdk.Id2MetaVerifyResponse, _e error) {
+			defer func() {
+				if r := tea.Recover(recover()); r != nil {
+					_e = r
+				}
+			}()
+			// 调用服务。
+			response := Id2MetaVerify(endpoint, request)
+			// 节点调用结果
+			ret := util.ToJSONString(util.ToMap(response))
+			console.Log(tea.String("节点 " + tea.StringValue(endpoint) + " 结果：" + tea.StringValue(ret) + " "))
+			// 有一个服务调用成功即返回。
+			if !tea.BoolValue(util.IsUnset(response)) && tea.BoolValue(util.EqualNumber(tea.ToInt(response.StatusCode), tea.Int(200))) {
+				if !tea.BoolValue(util.IsUnset(response.Body)) && tea.BoolValue(util.EqualString(response.Body.Code, tea.String("200"))) {
+					lastResponse = response
+					return
+				}
+
+			}
+
+			return nil, nil
+		}()
+
+		if tryErr != nil {
+			var error = &tea.SDKError{}
+			if _t, ok := tryErr.(*tea.SDKError); ok {
+				error = _t
+			} else {
+				error.Message = tea.String(tryErr.Error())
+			}
+			console.Error(tea.String("节点 " + tea.StringValue(endpoint) + " 调用异常：" + tea.StringValue(error.Message)))
+		}
+	}
+	_result = lastResponse
+	return _result
 }
 
-// CheckIDCard 调用阿里云市场身份证实名认证接口
-// appCode: 阿里云市场分配的AppCode,  此接口不是阿里云自己的, 是杭州快证签科技有限公司的
-func CheckIDCard(appCode string, req IDCardCheckRequest) (*IDCardCheckResponse, error) {
-	// url := "https://kzidcardv1.market.alicloudapi.com/api-mall/api/id_card/check"
-	url := REAL_NAME_CHECK_URL
+// Description:
+//
+// 获取服务Client实例，调用验证方法。
+func Id2MetaVerify(endpoint *string, request *sdk.Id2MetaVerifyRequest) (_result *sdk.Id2MetaVerifyResponse) {
+	// 获取SDK Client实例。
+	client := CreateClient(endpoint)
+	// 构建RuntimeObject
+	runtime := &util.RuntimeOptions{}
+	runtime.ReadTimeout = tea.Int(5000)
+	runtime.ConnectTimeout = tea.Int(5000)
+	// 连接
+	_result = &sdk.Id2MetaVerifyResponse{}
+	_body, _err := client.Id2MetaVerifyWithOptions(request, runtime)
+	if _err != nil {
+		return _result
+	}
+	_result = _body
+	return _result
+}
 
-	jsonData, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("marshal request failed: %w", err)
+// Description:
+//
+// 安全创建服务Client实例。
+func CreateClient(endpoint *string) (_result *sdk.Client) {
+	// 获取Credential工具，此工具会从环境变量中读取AccessKey。
+	credentialConfig := &credential.Config{}
+
+	credential, _err := credential.NewCredential(credentialConfig)
+	if _err != nil {
+		return _result
 	}
 
-	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("create request failed: %w", err)
-	}
-
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "APPCODE "+appCode)
-
-	client := &http.Client{}
-	resp, err := client.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("do request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("read body failed: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
-	}
-
-	var result IDCardCheckResponse
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, fmt.Errorf("unmarshal response failed: %w", err)
-	}
-
-	return &result, nil
+	// 创建SDK Client实例。
+	apiConfig := &openapi.Config{}
+	apiConfig.Credential = credential
+	apiConfig.Endpoint = endpoint
+	_result = &sdk.Client{}
+	_result, _err = sdk.NewClient(apiConfig)
+	return _result
 }

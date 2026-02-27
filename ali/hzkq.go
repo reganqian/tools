@@ -1,0 +1,82 @@
+package ali
+
+//curl -i -k -X POST 'https://kzidcardv1.market.alicloudapi.com/api-mall/api/id_card/check'  -H 'Authorization:APPCODE 你自己的AppCode' --data 'name=name&idcard=idcard'
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+)
+
+const (
+	REAL_NAME_CHECK_URL = "https://kzidcardv1.market.alicloudapi.com/api-mall/api/id_card/check"
+
+	ALI_IDCARD_RESULT_YES = 0 //一致
+	ALI_IDCARD_RESULT_NO  = 1 //不一致
+)
+
+// IDCardCheckRequest 实名认证请求参数
+type IDCardCheckRequest struct {
+	Name   string `json:"name"`   // 姓名
+	IDCard string `json:"idcard"` // 身份证号
+}
+
+// IDCardCheckResponse 实名认证返回结果
+type IDCardCheckResponse struct {
+	Code int    `json:"code"` // 返回码
+	Msg  string `json:"msg"`  // 返回信息
+	Data *struct {
+		Result   int    `json:"result"`   // 认证结果：0 不一致，1 一致
+		Birthday string `json:"birthday"` // 生日
+		OrderNo  string `json:"orderNo"`  // 订单编号
+		Address  string `json:"address"`  // 地址
+		Sex      string `json:"sex"`      // 性别
+		Desc     string `json:"desc"`     // 描述
+	} `json:"data"`
+}
+
+// CheckIDCard 调用阿里云市场身份证实名认证接口
+// appCode: 阿里云市场分配的AppCode,  此接口不是阿里云自己的, 是杭州快证签科技有限公司的
+func CheckIDCard(appCode string, req IDCardCheckRequest) (*IDCardCheckResponse, error) {
+	// url := "https://kzidcardv1.market.alicloudapi.com/api-mall/api/id_card/check"
+	url := REAL_NAME_CHECK_URL
+
+	jsonData, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("marshal request failed: %w", err)
+	}
+
+	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, fmt.Errorf("create request failed: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "APPCODE "+appCode)
+
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("do request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read body failed: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
+	}
+
+	var result IDCardCheckResponse
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("unmarshal response failed: %w", err)
+	}
+
+	return &result, nil
+}
+
+// func
