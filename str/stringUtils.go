@@ -2,7 +2,9 @@ package str
 
 import (
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -16,6 +18,29 @@ import (
 	"github.com/rs/xid"
 	// . "yunapi/log"
 )
+
+func GenerateShortRandomString(str string, length int) string {
+	if length <= 0 {
+		length = 8 // 默认 6 位
+	}
+
+	// 1. 用 SHA-256 处理 userID，得到稳定哈希
+	hash := sha256.Sum256([]byte(str))
+
+	// 2. 用哈希前 8 字节做随机种子
+	seed := int64(binary.BigEndian.Uint64(hash[:8]))
+	rng := rand.New(rand.NewSource(seed))
+
+	// 3. 62 字符集：a-z A-Z 0-9
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	// 4. 生成短随机串
+	result := make([]byte, length)
+	for i := range result {
+		result[i] = charset[rng.Intn(len(charset))]
+	}
+	return string(result)
+}
 
 func UniqAppend(dataList []string, data string) []string {
 	for _, data1 := range dataList {
