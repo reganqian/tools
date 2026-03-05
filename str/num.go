@@ -11,6 +11,7 @@ import (
 	"strconv"
 )
 
+// 加
 func AddTwoFloat(f1, f2 float64) float64 {
 	df1 := decimal.NewFromFloat(f1)
 	df2 := decimal.NewFromFloat(f2)
@@ -19,6 +20,7 @@ func AddTwoFloat(f1, f2 float64) float64 {
 	return Float2Float(r1)
 }
 
+// 减法
 func SubTwoFloat(f1, f2 float64) float64 {
 	df1 := decimal.NewFromFloat(f1)
 	df2 := decimal.NewFromFloat(f2)
@@ -27,6 +29,7 @@ func SubTwoFloat(f1, f2 float64) float64 {
 	return Float2Float(r1)
 }
 
+// 除法
 func DivTwoFloat(f1, f2 float64) float64 {
 	bigF1 := new(big.Float).SetFloat64(f1)
 	bigF2 := new(big.Float).SetFloat64(f2)
@@ -35,6 +38,7 @@ func DivTwoFloat(f1, f2 float64) float64 {
 	return Float2Float(r1)
 }
 
+// 乘法
 func MulTwoFloat(f1, f2 float64) float64 {
 	bigF1 := new(big.Float).SetFloat64(f1)
 	bigF2 := new(big.Float).SetFloat64(f2)

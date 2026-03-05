@@ -172,11 +172,20 @@ func MakeTimestamp() int64 {
 	return time.Now().UTC().UnixNano() / int64(time.Millisecond)
 }
 
-// 生成订单号：YYYYMMDDHHmmssSSS + gameId + pp +
+// 生成订单号：YYYYMMDDHHmmssSSS
 func CreateOrderNo(orderPre string) string {
 	date := GetTodyDay()
 	data := GetTimeTick64()
 	code := fmt.Sprintf("%s%s%s%s", orderPre, date, data, GetRandomNum(3))
+	return code
+}
+
+// 生成订单号：YYYYMMDDHHmmssSSS
+func CreateOrderNoWithUserId(orderPre string, userId uint) string {
+	date := GetTodyDay()
+	data := GetTimeTick64()
+	randStr := GetRandomStringWithStr(strconv.Itoa(int(userId)), 8)
+	code := fmt.Sprintf("%s%s%s%s", orderPre, date, data, randStr)
 	return code
 }
 
