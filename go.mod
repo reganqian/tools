@@ -8,6 +8,7 @@ require (
 	github.com/alibabacloud-go/darabonba-env v1.0.0
 	github.com/alibabacloud-go/darabonba-openapi v0.2.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.14
+	github.com/alibabacloud-go/dypnsapi-20170525 v1.0.6
 	github.com/alibabacloud-go/facebody-20191230/v4 v4.0.8
 	github.com/alibabacloud-go/tea v1.3.13
 	github.com/alibabacloud-go/tea-console v1.0.0

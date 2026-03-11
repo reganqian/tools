@@ -9,7 +9,7 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
-func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo string, sceneId int64) (_result *sdk.InitFaceVerifyResponse, _err error) {
+func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo, headUrl string, sceneId int64) (_result *sdk.InitFaceVerifyResponse, _err error) {
 	// 可用区域Id （请自行配置）
 	// regionId := args[0]
 	// 认证场景ID。您必须先在智能核身控制台创建认证场景，才能获得认证场景ID。
@@ -56,6 +56,7 @@ func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo string,
 		requestInitFaceVerify.OuterOrderNo = outerOrderNo
 		requestInitFaceVerify.ProductCode = productCode
 		requestInitFaceVerify.Model = model
+		requestInitFaceVerify.FaceContrastPictureUrl = tea.String(headUrl)
 		// requestInitFaceVerify.CertType = certType
 		// requestInitFaceVerify.CertName = certName
 		// requestInitFaceVerify.CertNo = certNo

@@ -15,6 +15,8 @@ type DoFaceVerifyRequest struct {
 	// Ip                     string `json:"ip"`                     //用户 IP
 	UserId                 string `json:"userId"`                 //客户业务自定义的用户 ID，请保持唯一。
 	FaceContrastPictureUrl string `json:"faceContrastPictureUrl"` //OSS 照片地址，目前只支持已授权 OSS 照片地址。
+	AccessKeyId            string `json:"accessKeyId"`            //accessKeyId
+	AccessKeySecret        string `json:"accessKeySecret"`        //accessKeySecret
 	// FaceContrastPicture    string `json:"faceContrastPicture"`    //照片 Base64 编码。
 	// CertifyId              string `json:"certifyId"`              //之前实人认证通过的 CertifyId，认证时的照片作为比对照片。
 	// OssBucketName          string `json:"OssBucketName"`          //
@@ -65,7 +67,7 @@ func DoFaceVerify(req DoFaceVerifyRequest) (result *sdk.InitFaceVerifyResponse, 
 	request.UserId = &req.UserId
 	request.FaceContrastPictureUrl = &req.FaceContrastPictureUrl
 	request.SceneId = &req.SceneId
-	result = InitFaceVerifyAutoRoute(&request)
+	result = InitFaceVerifyAutoRoute(&request, req.AccessKeyId, req.AccessKeySecret)
 	// if tea.BoolValue(util.EqualNumber(tea.ToInt(result.StatusCode), tea.Int(200))) {
 	// 	res := &DoFaceVerifyResponse{}
 	// 	res.CertifyId = result.Body.ResultObject.CertifyId
@@ -77,7 +79,7 @@ func DoFaceVerify(req DoFaceVerifyRequest) (result *sdk.InitFaceVerifyResponse, 
 	return result, err
 }
 
-func InitFaceVerifyAutoRoute(request *sdk.InitFaceVerifyRequest) (_result *sdk.InitFaceVerifyResponse) {
+func InitFaceVerifyAutoRoute(request *sdk.InitFaceVerifyRequest, accessKeyId, accessKeySecret string) (_result *sdk.InitFaceVerifyResponse) {
 	endpoints := []*string{tea.String("cloudauth.cn-shanghai.aliyuncs.com"), tea.String("cloudauth.cn-beijing.aliyuncs.com")}
 	var lastResponse *sdk.InitFaceVerifyResponse
 	for _, endpoint := range endpoints {
@@ -88,7 +90,7 @@ func InitFaceVerifyAutoRoute(request *sdk.InitFaceVerifyRequest) (_result *sdk.I
 				}
 			}()
 			// 调用服务。
-			response := InitFaceVerify(endpoint, request)
+			response := InitFaceVerify(endpoint, request, accessKeyId, accessKeySecret)
 			// 节点调用结果
 			ret := util.ToJSONString(util.ToMap(response))
 			console.Log(tea.String("节点 " + tea.StringValue(endpoint) + " 结果：" + tea.StringValue(ret) + " "))
@@ -119,9 +121,9 @@ func InitFaceVerifyAutoRoute(request *sdk.InitFaceVerifyRequest) (_result *sdk.I
 }
 
 // 获取服务Client实例，调用验证方法。
-func InitFaceVerify(endpoint *string, request *sdk.InitFaceVerifyRequest) (_result *sdk.InitFaceVerifyResponse) {
+func InitFaceVerify(endpoint *string, request *sdk.InitFaceVerifyRequest, accessKeyId, accessKeySecret string) (_result *sdk.InitFaceVerifyResponse) {
 	// 获取SDK Client实例。
-	client := CreateClient(endpoint)
+	client := CreateClient(endpoint, accessKeyId, accessKeySecret)
 	// 连接
 	_result = &sdk.InitFaceVerifyResponse{}
 	_body, _err := client.InitFaceVerify(request)
@@ -151,6 +153,9 @@ type DoDescribeFaceVerifyReq struct {
 	//
 	// 1000000006
 	SceneId *int64 `json:"SceneId,omitempty" xml:"SceneId,omitempty"`
+
+	AccessKeyId     string `json:"accessKeyId"`     //AccessKeyId
+	AccessKeySecret string `json:"accessKeySecret"` //AccessKeySecret
 }
 
 func DoDescribeFaceVerify(req DoDescribeFaceVerifyReq) (result *sdk.DescribeFaceVerifyResponse, err error) {
@@ -160,7 +165,7 @@ func DoDescribeFaceVerify(req DoDescribeFaceVerifyReq) (result *sdk.DescribeFace
 	request.SceneId = req.SceneId
 	// request.UserId = &req.UserId
 	// request.FaceContrastPictureUrl = &req.FaceContrastPictureUrl
-	result = DescribeFaceVerifyAutoRoute(&request)
+	result = DescribeFaceVerifyAutoRoute(&request, req.AccessKeyId, req.AccessKeySecret)
 	// if tea.BoolValue(util.EqualNumber(tea.ToInt(result.StatusCode), tea.Int(200))) {
 	// 	res = result.Body
 	// } else {
@@ -170,7 +175,7 @@ func DoDescribeFaceVerify(req DoDescribeFaceVerifyReq) (result *sdk.DescribeFace
 	return result, err
 }
 
-func DescribeFaceVerifyAutoRoute(request *sdk.DescribeFaceVerifyRequest) (_result *sdk.DescribeFaceVerifyResponse) {
+func DescribeFaceVerifyAutoRoute(request *sdk.DescribeFaceVerifyRequest, accessKeyId, accessKeySecret string) (_result *sdk.DescribeFaceVerifyResponse) {
 	endpoints := []*string{tea.String("cloudauth.cn-shanghai.aliyuncs.com"), tea.String("cloudauth.cn-beijing.aliyuncs.com")}
 	var lastResponse *sdk.DescribeFaceVerifyResponse
 	for _, endpoint := range endpoints {
@@ -181,7 +186,7 @@ func DescribeFaceVerifyAutoRoute(request *sdk.DescribeFaceVerifyRequest) (_resul
 				}
 			}()
 			// 调用服务。
-			response := DescribeFaceVerify(endpoint, request)
+			response := DescribeFaceVerify(endpoint, request, accessKeyId, accessKeySecret)
 			// 节点调用结果
 			ret := util.ToJSONString(util.ToMap(response))
 			console.Log(tea.String("节点 " + tea.StringValue(endpoint) + " 结果：" + tea.StringValue(ret) + " "))
@@ -212,9 +217,9 @@ func DescribeFaceVerifyAutoRoute(request *sdk.DescribeFaceVerifyRequest) (_resul
 }
 
 // 获取服务Client实例，调用验证方法。
-func DescribeFaceVerify(endpoint *string, request *sdk.DescribeFaceVerifyRequest) (_result *sdk.DescribeFaceVerifyResponse) {
+func DescribeFaceVerify(endpoint *string, request *sdk.DescribeFaceVerifyRequest, accessKeyId, accessKeySecret string) (_result *sdk.DescribeFaceVerifyResponse) {
 	// 获取SDK Client实例。
-	client := CreateClient(endpoint)
+	client := CreateClient(endpoint, accessKeyId, accessKeySecret)
 	// 连接
 	_result = &sdk.DescribeFaceVerifyResponse{}
 	_body, _err := client.DescribeFaceVerify(request)

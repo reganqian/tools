@@ -124,14 +124,35 @@ func ProdPwd(oldPwd, salt string) string {
 func PwdDes(pwd, salt string) string {
 	oldKey := Md5String(salt)
 	key := []byte(strings.ToTitle(oldKey[0:8]))
-
+	oldPwd := pwd
 	desStr := HexToString(pwd)
-	result, err := DesDecrypt([]byte(desStr), key)
-	if err != nil {
-		panic(err)
-	}
-	oldPwd := fmt.Sprintf("%s", result)
+
+	tryErr := func() (_e error) {
+
+		defer func() {
+			if r := recover(); r != nil {
+				// fmt.Println("Recovered from panic:", r)
+				// _e = errors.New(r.(string))
+				_e = fmt.Errorf("Decrypt error: %v", r)
+				return
+			}
+		}()
+
+		result, err := DesDecrypt([]byte(desStr), key)
+		if err != nil {
+			//如果异常, 则返回空字符串
+			return err
+		}
+		oldPwd = fmt.Sprintf("%s", result)
+
+		return nil
+	}()
+
 	fmt.Println(oldPwd)
+	if tryErr != nil {
+		return oldPwd
+	}
+
 	return oldPwd
 }
 
@@ -185,7 +206,7 @@ func CreateOrderNoWithUserId(orderPre string, userId uint) string {
 	date := GetTodyDay()
 	data := GetTimeTick64()
 	randStr := GetRandomStringWithStr(strconv.Itoa(int(userId)), 8)
-	code := fmt.Sprintf("%s%s%s%s", orderPre, date, data, randStr)
+	code := fmt.Sprintf("%s%s%s%s", orderPre, randStr, date, data)
 	return code
 }
 
@@ -229,6 +250,13 @@ func GetTimeUnix(t time.Time) int64 {
 func GetTodayStr() string {
 	timeTemplate := "20060102"
 	return time.Now().UTC().Format(timeTemplate)
+}
+
+func GetYesterdayNumStr() string {
+	inTime := time.Now().Unix()
+	timeTemplate := "20060102"
+	yesterday := time.Unix(inTime, 0).AddDate(0, 0, -1)
+	return yesterday.Format(timeTemplate)
 }
 
 func GetTimeStr(inTime time.Time) string {
@@ -637,4 +665,27 @@ func CreateKey() string {
 	keyHex := hex.EncodeToString(key)
 	fmt.Println("Generated JWT Key:", keyHex)
 	return keyHex
+}
+
+func HiddenStr(s string) string {
+	rs := []rune(s)
+	n := len(rs)
+
+	switch {
+	case n == 0:
+		return ""
+	case n == 1:
+		return "*"
+	case n <= 4:
+		// 除首字符外都替换，保留第一个字符
+		return string(rs[0]) + strings.Repeat("*", n-1)
+	case n <= 7:
+		// 保留首尾各一个字符
+		middleLen := n - 2
+		return string(rs[0]) + strings.Repeat("*", middleLen) + string(rs[n-1])
+	default:
+		// 保留前2个和后2个字符
+		middleLen := n - 4
+		return string(rs[:2]) + strings.Repeat("*", middleLen) + string(rs[n-2:])
+	}
 }

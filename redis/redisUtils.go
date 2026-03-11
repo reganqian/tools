@@ -74,7 +74,6 @@ func RedisSet(k, v string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 }
 
 func RedisDel(k string) bool {

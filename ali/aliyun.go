@@ -14,8 +14,10 @@ type ClientInterface interface {
 }
 
 type AliyunIdCardCheckReq struct {
-	UserName    string `json:"userName"`    //真实姓名
-	IdentifyNum string `json:"identifyNum"` //证件号码
+	UserName        string `json:"userName"`        //真实姓名
+	IdentifyNum     string `json:"identifyNum"`     //证件号码
+	AccessKeyId     string `json:"accessKeyId"`     //accessKeyId
+	AccessKeySecret string `json:"accessKeySecret"` //accessKeySecret
 }
 
 type AliyunIdCardCheckResponse struct {
@@ -40,7 +42,7 @@ func AliyunIdCardCheck(req AliyunIdCardCheckReq) (res *AliyunIdCardCheckResponse
 		request.UserName = &req.UserName
 		request.IdentifyNum = &req.IdentifyNum
 		// 自动路由服务。
-		response := Id2MetaVerifyAutoRoute(request)
+		response := Id2MetaVerifyAutoRoute(request, req.AccessKeyId, req.AccessKeySecret)
 		if tea.BoolValue(util.EqualNumber(tea.ToInt(response.StatusCode), tea.Int(200))) {
 			res := &AliyunIdCardCheckResponse{}
 			if tea.BoolValue(util.EqualString(response.Body.ResultObject.BizCode, tea.String("1"))) {
@@ -65,8 +67,8 @@ func AliyunIdCardCheck(req AliyunIdCardCheckReq) (res *AliyunIdCardCheckResponse
 }
 
 // 主备服务点循环调用，获取到成功结果返回。
-func Id2MetaVerifyAutoRoute(request *sdk.Id2MetaVerifyRequest) (_result *sdk.Id2MetaVerifyResponse) {
-	endpoints := []*string{tea.String("cloudauth.cn-shanghai.aliyuncs.com"), tea.String("cloudauth.cn-beijing.aliyuncs.com")}
+func Id2MetaVerifyAutoRoute(request *sdk.Id2MetaVerifyRequest, accessKeyId, accessKeySecret string) (_result *sdk.Id2MetaVerifyResponse) {
+	endpoints := []*string{tea.String("cloudauth.cn-shanghai.aliyuncs.com"), tea.String("cloudauth.cn-beijing.aliyuncs.com"), tea.String("cloudauth.aliyuncs.com")}
 	var lastResponse *sdk.Id2MetaVerifyResponse
 	for _, endpoint := range endpoints {
 		_, tryErr := func() (_r *sdk.Id2MetaVerifyResponse, _e error) {
@@ -76,7 +78,10 @@ func Id2MetaVerifyAutoRoute(request *sdk.Id2MetaVerifyRequest) (_result *sdk.Id2
 				}
 			}()
 			// 调用服务。
-			response := Id2MetaVerify(endpoint, request)
+			response, _err := Id2MetaVerify(endpoint, request, accessKeyId, accessKeySecret)
+			if _err != nil {
+				return nil, _err
+			}
 			// 节点调用结果
 			ret := util.ToJSONString(util.ToMap(response))
 			console.Log(tea.String("节点 " + tea.StringValue(endpoint) + " 结果：" + tea.StringValue(ret) + " "))
@@ -109,9 +114,9 @@ func Id2MetaVerifyAutoRoute(request *sdk.Id2MetaVerifyRequest) (_result *sdk.Id2
 // Description:
 //
 // 获取服务Client实例，调用验证方法。
-func Id2MetaVerify(endpoint *string, request *sdk.Id2MetaVerifyRequest) (_result *sdk.Id2MetaVerifyResponse) {
+func Id2MetaVerify(endpoint *string, request *sdk.Id2MetaVerifyRequest, accessKeyId, accessKeySecret string) (_result *sdk.Id2MetaVerifyResponse, _err error) {
 	// 获取SDK Client实例。
-	client := CreateClient(endpoint)
+	client := CreateClient(endpoint, accessKeyId, accessKeySecret)
 	// 构建RuntimeObject
 	runtime := &util.RuntimeOptions{}
 	runtime.ReadTimeout = tea.Int(5000)
@@ -120,18 +125,21 @@ func Id2MetaVerify(endpoint *string, request *sdk.Id2MetaVerifyRequest) (_result
 	_result = &sdk.Id2MetaVerifyResponse{}
 	_body, _err := client.Id2MetaVerifyWithOptions(request, runtime)
 	if _err != nil {
-		return _result
+		return _result, _err
 	}
 	_result = _body
-	return _result
+	return _result, nil
 }
 
 // Description:
 //
 // 安全创建服务Client实例。
-func CreateClient(endpoint *string) (_result *sdk.Client) {
+func CreateClient(endpoint *string, accessKeyId, accessKeySecret string) (_result *sdk.Client) {
 	// 获取Credential工具，此工具会从环境变量中读取AccessKey。
-	credentialConfig := &credential.Config{}
+	credentialConfig := &credential.Config{
+		AccessKeyId:     tea.String(accessKeyId),
+		AccessKeySecret: tea.String(accessKeySecret),
+	}
 
 	credential, _err := credential.NewCredential(credentialConfig)
 	if _err != nil {
