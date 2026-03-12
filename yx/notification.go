@@ -103,11 +103,14 @@ func CustomNotification(appKey, appSecret string, req CustomNotificationRequest)
 		"sender_id":   req.SenderID,
 		"type":        req.Type,
 		"receiver_id": req.ReceiverID,
-		"sound":       req.Sound,
+	}
+
+	if req.Sound != "" {
+		params["sound"] = req.Sound
 	}
 
 	baseUrl := "https://rtc.yunxinapi.com/v2/custom_notification"
-	// 发送 POST 请求到云信 RTC 服务
+	// 发送 POST 请求到云信 自定义系统通知服务
 	resp, err := SendYunxinPostApi(appKey, appSecret, baseUrl, params)
 	if err != nil {
 		return jsonStr, err

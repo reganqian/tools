@@ -1,6 +1,8 @@
 package ali
 
 import (
+	"errors"
+
 	openapi "github.com/alibabacloud-go/darabonba-openapi/client"
 	dypnsapi "github.com/alibabacloud-go/dypnsapi-20170525/client"
 	console "github.com/alibabacloud-go/tea-console/client"
@@ -35,6 +37,7 @@ func AliGetMobile(accessKeyId, accessKeySecret, accessToken string) (resBody *dy
 	code := response.Body.Code
 	if !tea.BoolValue(util.EqualString(code, tea.String("OK"))) {
 		console.Log(tea.String("错误信息:" + tea.StringValue(response.Body.Message)))
+		_err = errors.New(tea.StringValue(response.Body.Message))
 		return nil, _err
 	}
 
@@ -61,6 +64,7 @@ func AliVerifyMobile(accessKeyId, accessKeySecret, accessToken, phoneNumber stri
 	code := response.Body.Code
 	if !tea.BoolValue(util.EqualString(code, tea.String("OK"))) {
 		console.Log(tea.String("错误信息:" + tea.StringValue(response.Body.Message)))
+		_err = errors.New(tea.StringValue(response.Body.Message))
 		return nil, _err
 	}
 
