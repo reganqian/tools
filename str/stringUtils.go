@@ -9,7 +9,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -40,6 +42,23 @@ func GenerateShortRandomString(str string, length int) string {
 		result[i] = charset[rng.Intn(len(charset))]
 	}
 	return string(result)
+}
+
+// GetImageMD5FromURL 从网络URL获取图片并生成MD5
+func GetImageMD5FromURL(imageURL string) (string, error) {
+	resp, err := http.Get(imageURL)
+	if err != nil {
+		return "", fmt.Errorf("请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, resp.Body); err != nil {
+		return "", fmt.Errorf("读取响应体失败: %w", err)
+	}
+
+	md5Bytes := hash.Sum(nil)
+	return hex.EncodeToString(md5Bytes), nil
 }
 
 func UniqAppend(dataList []string, data string) []string {
@@ -249,6 +268,11 @@ func GetTimeUnix(t time.Time) int64 {
 
 func GetTodayStr() string {
 	timeTemplate := "20060102"
+	return time.Now().UTC().Format(timeTemplate)
+}
+
+func GetTodayHourStr() string {
+	timeTemplate := "2006010215"
 	return time.Now().UTC().Format(timeTemplate)
 }
 

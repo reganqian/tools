@@ -19,7 +19,69 @@ const (
 	REQUEST_TYPE_POST   = "POST"   // 调用云信接口POST
 	REQUEST_TYPE_GET    = "GET"    // 调用云信接口GET
 	REQUEST_TYPE_DELETE = "DELETE" // 调用云信接口DELETE
+	REQUEST_TYPE_PATCH  = "PATCH"  // 调用云信接口PATCH
 )
+
+// 调用云信接口PATCH
+func SendYunxinPatchApi(appKey, appSecret, baseURL string, requestBody map[string]interface{}) (string, error) {
+	fmt.Println("SendYunxinPatchApi", requestBody)
+	// 序列化为 JSON
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return "", err
+	}
+	fmt.Println("request jsondata:", string(jsonData))
+
+	//curl -X POST -H "AppKey: go9***3mgq3" -H "Nonce: 4t***23t23t" -H "CurTime: 1443592222" -H "CheckSum: 9e9db3b***583f86" -H "Content-Type: application/x-www-form-urlencoded" -d 'accid=123456&name=zhangsan' 'https://api.yunxinapi.com/nimserver/user/create.action'
+	// 生成随机 nonce
+	nonce := uuid.New().String()
+
+	// 获取当前时间戳（秒）
+	curTime := fmt.Sprintf("%d", time.Now().Unix())
+
+	// 计算 CheckSum = SHA1(AppSecret + nonce + curTime)
+	checkSum := CalculateCheckSum(appSecret, nonce, curTime)
+
+	// req.ContentLength = int64(len(formValues.Encode()))
+	// 创建 HTTP 请求
+	req, err := http.NewRequest(REQUEST_TYPE_PATCH, baseURL, bytes.NewBuffer(jsonData))
+
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return "", err
+	}
+
+	// 设置请求头
+	req.Header.Set("AppKey", appKey)
+	req.Header.Set("Nonce", nonce)
+	req.Header.Set("CurTime", curTime)
+	req.Header.Set("CheckSum", checkSum)
+	req.Header.Set("Content-Type", "application/json;charset=utf-8") //v10版本是json， v9版本是application/x-www-form-urlencoded;charset=utf-8
+	// 发起请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	// 读取响应体
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return "", err
+	}
+
+	// 直接作为字符串输出（即原始 JSON）
+	responseJSON := string(body)
+
+	// 打印 JSON 字符串
+	fmt.Printf("Response Status: %s\n", resp.Status)
+	fmt.Printf("Response JSON String:\n%s\n", responseJSON)
+	return responseJSON, nil
+}
 
 // 调用云信接口POST
 func SendYunxinPostApi(appKey, appSecret, baseURL string, requestBody map[string]interface{}) (string, error) {
