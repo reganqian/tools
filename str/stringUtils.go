@@ -46,6 +46,7 @@ func GenerateShortRandomString(str string, length int) string {
 
 // GetImageMD5FromURL 从网络URL获取图片并生成MD5
 func GetImageMD5FromURL(imageURL string) (string, error) {
+
 	resp, err := http.Get(imageURL)
 	if err != nil {
 		return "", fmt.Errorf("请求失败: %w", err)
@@ -58,7 +59,9 @@ func GetImageMD5FromURL(imageURL string) (string, error) {
 	}
 
 	md5Bytes := hash.Sum(nil)
-	return hex.EncodeToString(md5Bytes), nil
+	data := hex.EncodeToString(md5Bytes)
+
+	return data, nil
 }
 
 func UniqAppend(dataList []string, data string) []string {
