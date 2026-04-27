@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+// 暂时没用这个逻辑
 const (
 	REAL_NAME_CHECK_URL = "https://kzidcardv1.market.alicloudapi.com/api-mall/api/id_card/check"
 

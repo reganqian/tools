@@ -8,7 +8,8 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
-func AliIdcardCheck(regionId, accessKeyId, accessKeySecret, identifyNum, userName string) (_result *sdk.Id2MetaStandardVerifyResponse, _err error) {
+// AliIdcardCheck 核验身份证号
+func AliIdcardCheck(regionId, accessKeyId, accessKeySecret, identifyNum, userName string) (_result *sdk.Id2MetaVerifyResponse, _err error) {
 	// 可用区域Id （请自行配置）
 	// regionId := args[0]
 	// 认证场景ID。您必须先在智能核身控制台创建认证场景，才能获得认证场景ID。
@@ -50,11 +51,11 @@ func AliIdcardCheck(regionId, accessKeyId, accessKeySecret, identifyNum, userNam
 			return _err
 		}
 
-		request := &sdk.Id2MetaStandardVerifyRequest{}
+		request := &sdk.Id2MetaVerifyRequest{}
 		request.ParamType = tea.String("normal")
 		request.UserName = &userName
 		request.IdentifyNum = &identifyNum
-		response, _err := client.Id2MetaStandardVerify(request)
+		response, _err := client.Id2MetaVerify(request)
 		if _err != nil {
 			return _err
 		}

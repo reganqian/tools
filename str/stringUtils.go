@@ -286,6 +286,18 @@ func GetYesterdayNumStr() string {
 	return yesterday.Format(timeTemplate)
 }
 
+// 1明天, -1昨天
+func GetDayNumStr(addNum int) string {
+	if addNum == 0 {
+		return GetTodayStr()
+	}
+
+	inTime := time.Now().Unix()
+	timeTemplate := "20060102"
+	yesterday := time.Unix(inTime, 0).AddDate(0, 0, addNum)
+	return yesterday.Format(timeTemplate)
+}
+
 func GetTimeStr(inTime time.Time) string {
 	timeTemplate := "2006-01-02"
 	return inTime.Format(timeTemplate)
@@ -296,6 +308,13 @@ func GetTimeMonthAndDay(inTime time.Time) (timeMonth string, timeDay int) {
 	timeMonth = inTime.Format(timeTemplate)
 	timeDay = inTime.Day()
 	return timeMonth, timeDay
+}
+
+// 查询昨天
+func GetPointTimeStr(inTime time.Time, addNum int) string {
+	timeTemplate := "2006-01-02"
+	yesterday := inTime.AddDate(0, 0, addNum)
+	return yesterday.Format(timeTemplate)
 }
 
 // 查询昨天

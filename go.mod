@@ -9,10 +9,11 @@ require (
 	github.com/alibabacloud-go/darabonba-openapi v0.2.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.14
 	github.com/alibabacloud-go/dypnsapi-20170525 v1.0.6
+	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.18
 	github.com/alibabacloud-go/facebody-20191230/v4 v4.0.8
 	github.com/alibabacloud-go/tea v1.3.13
 	github.com/alibabacloud-go/tea-console v1.0.0
-	github.com/alibabacloud-go/tea-utils v1.4.3
+	github.com/alibabacloud-go/tea-utils v1.4.5
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.7
 	github.com/aliyun/credentials-go v1.4.5
 	github.com/astaxie/beego v1.12.3

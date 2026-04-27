@@ -34,6 +34,10 @@ func AliGetMobile(accessKeyId, accessKeySecret, accessToken string) (resBody *dy
 		return nil, _err
 	}
 
+	if response.Body == nil {
+		return nil, errors.New("响应体为空")
+	}
+
 	code := response.Body.Code
 	if !tea.BoolValue(util.EqualString(code, tea.String("OK"))) {
 		console.Log(tea.String("错误信息:" + tea.StringValue(response.Body.Message)))

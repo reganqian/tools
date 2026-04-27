@@ -7,9 +7,10 @@ import (
 	console "github.com/alibabacloud-go/tea-console/client"
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/labstack/gommon/log"
 )
 
-func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo, headUrl string, sceneId int64) (_result *sdk.InitFaceVerifyResponse, _err error) {
+func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo, userId, headUrl string, sceneId int64) (_result *sdk.InitFaceVerifyResponse, _err error) {
 	// 可用区域Id （请自行配置）
 	// regionId := args[0]
 	// 认证场景ID。您必须先在智能核身控制台创建认证场景，才能获得认证场景ID。
@@ -17,7 +18,9 @@ func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo, headUr
 	// 客户服务端自定义的业务唯一标识，用于后续定位排查问题使用。值最长为32位长度的字母数字组合，请确保唯一。
 	outerOrderNo := tea.String(orderNo)
 	// 认证方案。唯一取值：LR_FR。
-	productCode := tea.String("LR_FR")
+	// productCode := tea.String("LR_FR") //活体检测时LR_FR
+	productCode := tea.String("PV_FV") //人脸真人识别 PV_FV
+
 	// 活体检测类型。取值：LIVENESS（默认）：动作活体检测 | PHOTINUS_LIVENESS：动作活体+炫彩活体双重检测
 	model := tea.String("LIVENESS")
 	// 证件类型。取值：IDENTITY_CARD，表示身份证。
@@ -60,6 +63,7 @@ func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo, headUr
 		// requestInitFaceVerify.CertType = certType
 		// requestInitFaceVerify.CertName = certName
 		// requestInitFaceVerify.CertNo = certNo
+		requestInitFaceVerify.UserId = tea.String(userId)
 		requestInitFaceVerify.MetaInfo = tea.String(metaInfo)
 		responseInitFaceVerify, _err := client.InitFaceVerify(requestInitFaceVerify)
 		if _err != nil {
@@ -67,6 +71,7 @@ func RealCheck(regionId, accessKeyId, accessKeySecret, orderNo, metaInfo, headUr
 		}
 		_result = responseInitFaceVerify
 		console.Log(util.ToJSONString(util.ToMap(responseInitFaceVerify)))
+		log.Info("RealCheck response:", util.ToJSONString(util.ToMap(responseInitFaceVerify)))
 
 		return nil
 	}()
@@ -115,7 +120,7 @@ func RealDescribeFaceVerify(regionId, accessKeyId, accessKeySecret, certifyId st
 			return _err
 		}
 		_result = responseDescribeFaceVerify
-		console.Log(util.ToJSONString(util.ToMap(responseDescribeFaceVerify)))
+		log.Info("RealDescribeFaceVerify response:", util.ToJSONString(util.ToMap(responseDescribeFaceVerify)))
 
 		return nil
 	}()

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/labstack/gommon/log"
 )
 
 const (
@@ -78,8 +79,9 @@ func SendYunxinPatchApi(appKey, appSecret, baseURL string, requestBody map[strin
 	responseJSON := string(body)
 
 	// 打印 JSON 字符串
-	fmt.Printf("Response Status: %s\n", resp.Status)
-	fmt.Printf("Response JSON String:\n%s\n", responseJSON)
+	log.Info("baseURL:", baseURL)
+	log.Info("Response Status:", resp.Status)
+	log.Info("Response JSON String:", responseJSON)
 	return responseJSON, nil
 }
 
@@ -139,8 +141,9 @@ func SendYunxinPostApi(appKey, appSecret, baseURL string, requestBody map[string
 	responseJSON := string(body)
 
 	// 打印 JSON 字符串
-	fmt.Printf("Response Status: %s\n", resp.Status)
-	fmt.Printf("Response JSON String:\n%s\n", responseJSON)
+	log.Info("baseURL:", baseURL)
+	log.Info("Response Status:", resp.Status)
+	log.Info("Response JSON String:", responseJSON)
 	return responseJSON, nil
 }
 
@@ -201,8 +204,9 @@ func SendYunxinPostApiWithForm(appKey, appSecret, baseURL string, requestBody ma
 	responseJSON := string(body)
 
 	// 打印 JSON 字符串
-	fmt.Printf("Response Status: %s\n", resp.Status)
-	fmt.Printf("Response JSON String:\n%s\n", responseJSON)
+	log.Info("baseURL:", baseURL)
+	log.Info("Response Status:", resp.Status)
+	log.Info("Response JSON String:", responseJSON)
 	return responseJSON, nil
 }
 
@@ -243,12 +247,18 @@ func SendYunxinDeleteApi(appKey, appSecret, baseURL string) (int, error) {
 	}
 	defer resp.Body.Close()
 
-	// 直接作为字符串输出（即原始 JSON）
+	// // 直接作为字符串输出（即原始 JSON）
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	fmt.Println("Error reading response body:", err)
+	// 	return 0, err
+	// }
 	// responseJSON := string(body)
 
 	// 打印 JSON 字符串
-	fmt.Printf("Response Status: %s\n", resp.Status)
-	// fmt.Printf("Response JSON String:\n%s\n", responseJSON)
+	log.Info("baseURL:", baseURL)
+	log.Info("Response Status:", resp.Status)
+	// log.Info("Response JSON String:", responseJSON)
 	return resp.StatusCode, nil
 }
 
@@ -324,8 +334,9 @@ func SendYunxinGetApi(appKey, appSecret, baseURL string, requestBody map[string]
 	responseJSON := string(body)
 
 	// 打印 JSON 字符串
-	fmt.Printf("Response Status: %s\n", resp.Status)
-	fmt.Printf("Response JSON String:\n%s\n", responseJSON)
+	log.Info("baseURL:", baseURL)
+	log.Info("Response Status:", resp.Status)
+	log.Info("Response JSON String:", responseJSON)
 	return responseJSON, nil
 }
 
@@ -359,8 +370,8 @@ func SendYunXinSms(appKey, appSecret string, mobile string, templateID int64, cu
 		fmt.Println("Error sending YunXinSms request:", err)
 		return err
 	}
-
-	fmt.Println("YunXinSms response:", resp)
+	log.Info("baseURL:", targetURL)
+	log.Info("YunXinSms response:", resp)
 	return nil
 }
 

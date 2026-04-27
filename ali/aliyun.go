@@ -149,7 +149,9 @@ func CreateClient(endpoint *string, accessKeyId, accessKeySecret string) (_resul
 	// 创建SDK Client实例。
 	apiConfig := &openapi.Config{}
 	apiConfig.Credential = credential
-	apiConfig.Endpoint = endpoint
+	if endpoint != nil {
+		apiConfig.Endpoint = endpoint
+	}
 	_result = &sdk.Client{}
 	_result, _err = sdk.NewClient(apiConfig)
 	return _result

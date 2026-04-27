@@ -5,6 +5,17 @@ type PageReq struct {
 	PageSize int32 `json:"pageSize"`
 }
 
+func (p *PageReq) GetPageFrom() int32 {
+	if p.PageNo <= 0 {
+		p.PageNo = 1
+	}
+	if p.PageSize <= 0 {
+		p.PageSize = 10
+	}
+	pageFrom := p.PageSize * (p.PageNo - 1)
+	return pageFrom
+}
+
 // @Description  初始化分页请求
 func InitPageReq(pageNo, pageSize int32) (int32, int32) {
 	if pageNo <= 0 {

@@ -7,6 +7,7 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 )
 
+// 暂时没用这个逻辑
 type DoFaceVerifyRequest struct {
 	SceneId int64 `json:"sceneId"` //认证场景 ID。注意 该字段类型为 Long，在序列化/反序列化的过程中可能导致精度丢失，请注意数值不得大于 9007199254740991。
 	// OuterOrderNo string `json:"outerOrderNo"` //商户请求的唯一标识。值为 32 位长度的字母数字组合。前面几位字符是商户自定义的简称，中间可以使用一段时间，后段可以使用一个随机或递增序列。
