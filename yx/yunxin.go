@@ -213,7 +213,6 @@ func SendYunxinPostApiWithForm(appKey, appSecret, baseURL string, requestBody ma
 // 调用云信接口DELETE, 返回码是200表示成功
 func SendYunxinDeleteApi(appKey, appSecret, baseURL string) (int, error) {
 
-	//curl -X POST -H "AppKey: go9***3mgq3" -H "Nonce: 4t***23t23t" -H "CurTime: 1443592222" -H "CheckSum: 9e9db3b***583f86" -H "Content-Type: application/x-www-form-urlencoded" -d 'accid=123456&name=zhangsan' 'https://api.yunxinapi.com/nimserver/user/create.action'
 	// 生成随机 nonce
 	nonce := uuid.New().String()
 
@@ -239,6 +238,8 @@ func SendYunxinDeleteApi(appKey, appSecret, baseURL string) (int, error) {
 	req.Header.Set("CheckSum", checkSum)
 	req.Header.Set("Content-Type", "application/json;charset=utf-8") //v10版本是json， v9版本是application/x-www-form-urlencoded;charset=utf-8
 	// 发起请求
+	log.Info("所有信息：", req.Header)
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -338,6 +339,11 @@ func SendYunxinGetApi(appKey, appSecret, baseURL string, requestBody map[string]
 	log.Info("Response Status:", resp.Status)
 	log.Info("Response JSON String:", responseJSON)
 	return responseJSON, nil
+}
+
+func GetChecksum(appSecret, nonce string, curtime int64) string {
+	raw := fmt.Sprintf("%s%s%d", appSecret, nonce, curtime)
+	return fmt.Sprintf("%x", sha1.Sum([]byte(raw)))
 }
 
 func CalculateCheckSum(appSecret, nonce, curTime string) string {

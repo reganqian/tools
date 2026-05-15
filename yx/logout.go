@@ -9,7 +9,7 @@ func DoForceLogout(appKey, appSecret, accountId, deviceId string) (jsonStr strin
 	if deviceId == "" {
 		params["type"] = 1 //所有设备都踢下线
 	} else {
-		params["type"] = 3
+		params["type"] = 3 //保留指定设备
 		params["device_id_list"] = []string{deviceId}
 	}
 

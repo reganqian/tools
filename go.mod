@@ -4,8 +4,6 @@ go 1.20
 
 require (
 	github.com/alibabacloud-go/cloudauth-20190307/v4 v4.13.1
-	github.com/alibabacloud-go/cloudauth-20200618/v2 v2.0.3
-	github.com/alibabacloud-go/darabonba-env v1.0.0
 	github.com/alibabacloud-go/darabonba-openapi v0.2.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.14
 	github.com/alibabacloud-go/dypnsapi-20170525 v1.0.6
@@ -26,6 +24,7 @@ require (
 	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/cast v1.7.0
 	github.com/tealeg/xlsx v1.0.5
+	github.com/tencentyun/tls-sig-api-v2-golang v1.4.0
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/xuri/excelize/v2 v2.9.0
 	golang.org/x/net v0.30.0
@@ -37,13 +36,10 @@ require (
 	github.com/alibabacloud-go/debug v1.0.1 // indirect
 	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
 	github.com/alibabacloud-go/openapi-util v0.1.0 // indirect
-	github.com/alibabacloud-go/openplatform-20191219 v1.1.7 // indirect
 	github.com/alibabacloud-go/openplatform-20191219/v2 v2.0.1 // indirect
 	github.com/alibabacloud-go/tea-fileform v1.1.1 // indirect
 	github.com/alibabacloud-go/tea-oss-sdk v1.1.3 // indirect
 	github.com/alibabacloud-go/tea-oss-utils v1.1.0 // indirect
-	github.com/alibabacloud-go/tea-rpc v1.1.8 // indirect
-	github.com/alibabacloud-go/tea-rpc-utils v1.1.2 // indirect
 	github.com/alibabacloud-go/tea-xml v1.1.2 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
