@@ -24,6 +24,8 @@ require (
 	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/cast v1.7.0
 	github.com/tealeg/xlsx v1.0.5
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/captcha v1.3.52
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.102
 	github.com/tencentyun/tls-sig-api-v2-golang v1.4.0
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/xuri/excelize/v2 v2.9.0

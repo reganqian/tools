@@ -264,6 +264,11 @@ github.com/syndtr/goleveldb v0.0.0-20160425020131-cfa635847112/go.mod h1:Z4AUp2K
 github.com/syndtr/goleveldb v0.0.0-20181127023241-353a9fca669c/go.mod h1:Z4AUp2Km+PwemOoO/VB5AOx9XSsIItzFjoJlOSiYmn0=
 github.com/tealeg/xlsx v1.0.5 h1:+f8oFmvY8Gw1iUXzPk+kz+4GpbDZPK1FhPiQRd+ypgE=
 github.com/tealeg/xlsx v1.0.5/go.mod h1:btRS8dz54TDnvKNosuAqxrM1QgN1udgk9O34bDCnORM=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/captcha v1.3.52 h1:bPz4h9cPAD2psXNdVNHZUM/V13P05rtXoFIFn1IIPoA=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/captcha v1.3.52/go.mod h1:KDlcSxrt2pw9nenvXpw/VHipuokbA0j2iRXV+2gF5j8=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.52/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.102 h1:3n7BpLOPnE9Rv3Y9Jxgl/XaQX3GzktO+dEaAbtVbjSk=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.102/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
 github.com/tencentyun/tls-sig-api-v2-golang v1.4.0 h1:FZq/RWsXqFpb70BCbbdYnjGPXx7RuAjBljWDUUZRv14=
 github.com/tencentyun/tls-sig-api-v2-golang v1.4.0/go.mod h1:0L1MSijyEq6a74xZ02h0qKfN8y6RcvDiNabIZWXereE=
 github.com/tjfoc/gmsm v1.3.2/go.mod h1:HaUcFuY0auTiaHB9MHFGCPx5IaLhTUd2atbCFBQXn9w=
