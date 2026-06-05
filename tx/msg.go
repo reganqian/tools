@@ -3,8 +3,11 @@ package tx
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"math/rand"
 	"net/http"
+
+	"github.com/labstack/gommon/log"
 )
 
 // MsgElem 单条消息元素（按需扩展）
@@ -13,18 +16,46 @@ type MsgElem struct {
 	MsgContent interface{} `json:"MsgContent"`
 }
 
+const (
+	TIMTextElem      = "TIMTextElem"      // 文本消息 "文本消息"
+	TIMLocationElem  = "TIMLocationElem"  // 位置消息 "位置消息"
+	TIMFaceElem      = "TIMFaceElem"      // 表情消息 "表情消息"
+	TIMCustomElem    = "TIMCustomElem"    // 自定义消息 "自定义消息"
+	TIMSoundElem     = "TIMSoundElem"     // 语音消息 "语音消息"
+	TIMImageElem     = "TIMImageElem"     // 图像消息 "图像消息"
+	TIMFileElem      = "TIMFileElem"      // 文件消息 "文件消息"
+	TIMVideoFileElem = "TIMVideoFileElem" // 视频消息 "视频消息"
+)
+
 // MsgTextContent 文本消息内容
 type MsgTextContent struct {
 	Text string `json:"Text"`
 }
 
-func FormatContent(content string) (MsgTextContent, error) {
+func FormatTEXTContent(content string) (MsgTextContent, error) {
 	var textContent MsgTextContent
 	err := json.Unmarshal([]byte(content), &textContent)
 	if err != nil {
 		return textContent, err
 	}
 	return textContent, nil
+}
+
+func FormatContent(msgType string, content string) (interface{}, error) {
+	switch msgType {
+	case TIMTextElem:
+		return FormatTEXTContent(content)
+	case TIMImageElem:
+		return FormatImageContent(content)
+	case TIMSoundElem:
+		return FormatVoiceContent(content)
+	case TIMVideoFileElem:
+		return FormatVideoContent(content)
+	case TIMCustomElem:
+		return FormatCustomToyPlayBody(content)
+	default:
+		return MsgTextContent{}, errors.New("msg type not support")
+	}
 }
 
 // // MsgImageContent 图片消息内容
@@ -41,6 +72,43 @@ func FormatImageContent(content string) (MsgImageContent, error) {
 		return imageContent, err
 	}
 	return imageContent, nil
+}
+
+// type MsgBodyItem struct {
+// 	MsgType    string                 `json:"MsgType"`
+// 	MsgContent map[string]interface{} `json:"MsgContent"`
+// }
+
+func FormatCustomToyPlayBody(content string) (CustomData, error) {
+	var customData CustomData
+	customData.Data = content
+	return customData, nil
+}
+
+type CustomData struct {
+	Data string `json:"Data"` // 自定义消息内容
+}
+
+type CustomToyPlayBody struct {
+	// {\"type\":\"toy_play\",\"action\":\"hudong\",\"playSessionId\":\"1779438067717\",\"timestamp\":1779438067719,\"toyDevice\":{\"id\":null,\"displayName\":null,\"localName\":null,\"connected\":false,\"hasActiveDevice\":false,\"capabilities\":{\"vibration\":false,\"thrusting\":false,\"led\":false}
+	Action           string    `json:"action"`
+	PlaySessionId    string    `json:"playSessionId"`
+	Timestamp        int64     `json:"timestamp"`
+	ToyDevice        ToyDevice `json:"toyDevice"`
+	KnownDeviceCount int64     `json:"knownDeviceCount"`
+}
+
+type ToyDevice struct {
+	Id              *int64  `json:"id"`
+	DisplayName     *string `json:"displayName"`
+	LocalName       *string `json:"localName"`
+	Connected       bool    `json:"connected"`
+	HasActiveDevice bool    `json:"hasActiveDevice"`
+	Capabilities    struct {
+		Vibration bool `json:"vibration"`
+		Thrusting bool `json:"thrusting"`
+		Led       bool `json:"led"`
+	} `json:"capabilities"`
 }
 
 type MsgImageInfo struct {
@@ -71,13 +139,13 @@ func FormatVoiceContent(content string) (MsgVoiceContent, error) {
 
 // MsgVideoContent 视频消息内容
 type MsgVideoContent struct {
-	VideoURL          string `json:"VideoURL"`          // 视频URL
+	VideoURL          string `json:"VideoUrl"`          // 视频URL
 	VideoUUID         string `json:"VideoUUID"`         // 视频唯一标识符
 	VideoSize         int    `json:"VideoSize"`         // 视频大小
 	VideoSecond       int    `json:"VideoSecond"`       // 视频时长
 	VideoFormat       string `json:"VideoFormat"`       // 视频格式，默认mp4
 	VideoDownloadFlag int    `json:"VideoDownloadFlag"` // 视频下载标志，默认2
-	ThumbURL          string `json:"ThumbURL"`          // 缩略图URL
+	ThumbURL          string `json:"ThumbUrl"`          // 缩略图URL
 	ThumbUUID         string `json:"ThumbUUID"`         // 缩略图唯一标识符
 	ThumbSize         int    `json:"ThumbSize"`         // 缩略图大小
 	ThumbWidth        int    `json:"ThumbWidth"`        // 缩略图宽度
@@ -119,10 +187,12 @@ type SendC2CMsgResp struct {
 }
 
 type SendTxMsgReq struct {
-	FromAccount string `json:"From_Account,omitempty"` // 发送方账号
-	ToAccount   string `json:"To_Account"`             // 接收方账号
-	MsgContent  string `json:"MsgContent"`
-	MsgType     string `json:"MsgType,omitempty"`
+	FromAccount             string `json:"From_Account,omitempty"` // 发送方账号
+	ToAccount               string `json:"To_Account"`             // 接收方账号
+	MsgContent              string `json:"MsgContent"`
+	MsgType                 string `json:"MsgType,omitempty"`
+	SyncOtherMachine        int    `json:"SyncOtherMachine,omitempty"`        // 是否同步到其他机器, 若不希望将消息同步至 From_Account，则 SyncOtherMachine 填写2；若希望将消息同步至 From_Account，则 SyncOtherMachine 填写1。
+	IsForbidCallbackControl bool   `json:"IsForbidCallbackControl,omitempty"` // 是否禁用回调，默认禁用回调, true表示禁用回调
 }
 
 // SendC2CMsg 发送单聊消息（可复用）
@@ -143,8 +213,10 @@ func SendC2CMsg(
 	req.ToAccount = request.ToAccount
 	req.MsgType = request.MsgType
 
+	req.MsgRandom = int(rand.Intn(100000000))
+
 	// 校式化消息内容
-	content, err := FormatContent(request.MsgContent)
+	content, err := FormatContent(request.MsgType, request.MsgContent)
 	if err != nil {
 		return nil, err
 	}
@@ -157,12 +229,20 @@ func SendC2CMsg(
 	}
 
 	//
-	req.SyncOtherMachine = 2 // 是否同步到其他机器，默认0
-	req.ForbidCallbackControl = []string{
-		"ForbidBeforeSendMsgCallback",
+	if req.SyncOtherMachine == 0 {
+		req.SyncOtherMachine = 1
+	}
+	req.SyncOtherMachine = req.SyncOtherMachine // 是否同步到其他机器，默认0
+
+	if request.IsForbidCallbackControl {
+		req.ForbidCallbackControl = []string{
+			"ForbidBeforeSendMsgCallback",
+		}
 	}
 
 	body, _ := json.Marshal(req)
+
+	log.Info("SendC2CMsg req: %v", string(body))
 	url := "https://" + d + "/v4/openim/sendmsg" +
 		"?sdkappid=" + intToStr(conf.SDKAppID) +
 		"&identifier=" + conf.AdminUser +

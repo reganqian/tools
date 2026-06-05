@@ -17,7 +17,7 @@ func (p *PageReq) GetPageFrom() int32 {
 }
 
 // @Description  初始化分页请求
-func InitPageReq(pageNo, pageSize int32) (int32, int32) {
+func InitPageReq(pageNo, pageSize int32) (int32, int32, int32) {
 	if pageNo <= 0 {
 		pageNo = 1
 	}
@@ -25,5 +25,5 @@ func InitPageReq(pageNo, pageSize int32) (int32, int32) {
 		pageSize = 10
 	}
 	pageFrom := (pageNo - 1) * pageSize
-	return pageSize, pageFrom
+	return pageNo, pageSize, pageFrom
 }
