@@ -21,9 +21,38 @@ import (
 	// . "yunapi/log"
 )
 
+const chars = "AD1JSTXFGPHUB2CVW6ILK9QRE3M7N845YZ"
+
+func UserIDToCode(userID uint, length int) string {
+	if userID <= 0 {
+		panic("userID must be positive")
+	}
+	userID += 100000
+
+	var result []byte
+	for userID > 0 {
+		result = append(result, chars[userID%36])
+		userID /= 36
+	}
+
+	// 反转
+	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
+		result[i], result[j] = result[j], result[i]
+	}
+
+	s := string(result)
+
+	// 截断（理论上不会触发）
+	if len(s) > length {
+		s = s[len(s)-length:]
+	}
+
+	return s
+}
+
 func GenerateShortRandomString(str string, length int) string {
 	if length <= 0 {
-		length = 8 // 默认 6 位
+		length = 8 // 默认 8 位
 	}
 
 	// 1. 用 SHA-256 处理 userID，得到稳定哈希

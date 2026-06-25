@@ -25,7 +25,8 @@ require (
 	github.com/spf13/cast v1.7.0
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/captcha v1.3.52
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.102
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.121
+	github.com/tencentcloud/tencentcloud-speech-sdk-go v1.0.25
 	github.com/tencentyun/tls-sig-api-v2-golang v1.4.0
 	github.com/tjfoc/gmsm v1.4.1
 	github.com/xuri/excelize/v2 v2.9.0
@@ -44,6 +45,7 @@ require (
 	github.com/alibabacloud-go/tea-oss-utils v1.1.0 // indirect
 	github.com/alibabacloud-go/tea-xml v1.1.2 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
