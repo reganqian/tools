@@ -1,4 +1,4 @@
-package rescode
+﻿package rescode
 
 // @Title 常量文档
 // @Description 生成包含常量的文档
