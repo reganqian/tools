@@ -572,7 +572,7 @@ func StrToTime(str string) time.Time {
 // CalculateAge 根据生日计算年龄
 func CalculateAge(birthday string) (int, error) {
 	// 解析生日字符串
-	birthDate, err := time.Parse("2006-01-02 15:04:05", birthday)
+	birthDate, err := time.Parse("2006-01-02", birthday)
 	if err != nil {
 		return 0, err
 	}
